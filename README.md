@@ -102,7 +102,7 @@ Payment	UI flow only
 bash
 Copy
 Edit
-git clone https://github.com/your-username/Airline-Reservation-System.git
+git clone https://github.com/Faizan0602/Airline-Reservation-System.git
 cd Airline-Reservation-System
 2️⃣ Install Frontend Dependencies
 bash
