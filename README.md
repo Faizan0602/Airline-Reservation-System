@@ -70,6 +70,18 @@ Authentication	JWT
 Design	Figma-style card layout, responsive breakpoints
 Payment	UI flow only 
 
+## ✈️ UI Preview
+
+### Flight Search Interface
+![Flight Search](assets/C:\Users\Faizan\Downloads\project-bolt-sb1-pqsyzww7\project\assets\homepage.png)
+
+### Hotel Booking Add-on
+![Hotel Booking](assets/hotel-booking.png)
+
+### Responsive Mobile View
+![Mobile View](https://i.imgur.com/yourimage.png)
+
+
 🚀 Getting Started
 1️⃣ Clone the Repository
 bash
