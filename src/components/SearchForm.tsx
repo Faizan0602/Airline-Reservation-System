@@ -226,7 +226,7 @@ export default function SearchForm() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-xl p-6 -mt-8 relative z-10 mx-4 lg:mx-0 hover:shadow-2xl transition-shadow duration-300">
+    <div className="bg-white rounded-2xl shadow-xl p-6 -mt-8 relative z-10 mx-4 lg:mx-0 hover:shadow-2xl transition-shadow duration-300">
       {!state.user && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-blue-800 text-center">
@@ -235,33 +235,57 @@ export default function SearchForm() {
         </div>
       )}
       
-      <form onSubmit={handleSearch} className="space-y-6">
-        {/* Trip Type */}
-        <div className="flex space-x-4">
-          <label className="flex items-center cursor-pointer hover:bg-blue-50 p-2 rounded-lg transition-colors duration-200">
-            <input
-              type="radio"
-              name="tripType"
-              value="one-way"
-              checked={filters.tripType === 'one-way'}
-              onChange={(e) => setFilters({ ...filters, tripType: e.target.value as 'one-way' | 'round-trip' })}
-              className="mr-2 text-blue-600 hover:ring-2 hover:ring-blue-300 transition-all duration-200"
-            />
-            <span className="hover:text-blue-700 transition-colors duration-200">One Way</span>
-          </label>
-          <label className="flex items-center cursor-pointer hover:bg-blue-50 p-2 rounded-lg transition-colors duration-200">
-            <input
-              type="radio"
-              name="tripType"
-              value="round-trip"
-              checked={filters.tripType === 'round-trip'}
-              onChange={(e) => setFilters({ ...filters, tripType: e.target.value as 'one-way' | 'round-trip' })}
-              className="mr-2 text-blue-600 hover:ring-2 hover:ring-blue-300 transition-all duration-200"
-            />
-            <span className="hover:text-blue-700 transition-colors duration-200">Round Trip</span>
-          </label>
+      {/* 1. Top bar: white background, flex, justify-between, items-center, px-4, pt-4 */}
+      {/*    - Left: 'My Tickets' in bold, black text */}
+      {/*    - Center: Airplane SVG and dotted route (inline SVG) */}
+      {/*    - Right: User avatar in a circle, and balance in a pill */}
+      <div className="w-full bg-white flex justify-between items-center px-4 pt-4 pb-2">
+        {/* Left: My Tickets */}
+        <div className="font-bold text-xl text-black">My Tickets</div>
+        {/* Center: Airplane SVG and dotted route */}
+        <div className="flex flex-col items-center flex-1">
+          <div className="flex items-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+              <path d="M2.5 19.5l19-7-19-7v5l15 2-15 2v5z" />
+            </svg>
+            <svg width="80" height="16" viewBox="0 0 80 16" fill="none" className="ml-2">
+              <circle cx="8" cy="8" r="2" fill="#000" />
+              <circle cx="72" cy="8" r="2" fill="#000" />
+              <line x1="10" y1="8" x2="70" y2="8" stroke="#000" strokeDasharray="4 4" />
+            </svg>
+          </div>
         </div>
+        {/* Right: User avatar and balance pill */}
+        <div className="flex items-center space-x-2">
+          <div className="bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center overflow-hidden">
+            {/* Placeholder avatar, replace src as needed */}
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" className="w-10 h-10 object-cover" />
+          </div>
+          <div className="bg-gray-100 rounded-full px-4 py-1 text-xs font-semibold text-black">$728.01</div>
+        </div>
+      </div>
 
+      {/* After the top bar, add the following tabs section: */}
+      <div className="flex justify-center mt-2 mb-6">
+        <div className="bg-gray-100 rounded-full flex p-1 w-72">
+          <button
+            type="button"
+            className={`flex-1 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ${filters.tripType === 'one-way' ? 'bg-white text-black shadow' : 'text-gray-500'}`}
+            onClick={() => setFilters({ ...filters, tripType: 'one-way' })}
+          >
+            One Way
+          </button>
+          <button
+            type="button"
+            className={`flex-1 py-2 rounded-full text-sm font-semibold transition-colors duration-200 ${filters.tripType === 'round-trip' ? 'bg-white text-black shadow' : 'text-gray-500'}`}
+            onClick={() => setFilters({ ...filters, tripType: 'round-trip' })}
+          >
+            Round Trip
+          </button>
+        </div>
+      </div>
+
+      <form onSubmit={handleSearch} className="space-y-6">
         {/* Origin and Destination with Searchable Inputs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 relative">
           <SearchableSelect
