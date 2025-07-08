@@ -73,7 +73,7 @@ Payment	UI flow only
 ## 🖼️ UI Screenshots
 
 ### 🏠 Homepage
-![Homepage](assets/homepage.png)
+![Homepage](assets/home.png)
 
 ### 👤 Create Account
 ![Create Account](assets/create%20account.png)
