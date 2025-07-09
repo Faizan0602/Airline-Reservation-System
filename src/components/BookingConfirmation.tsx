@@ -76,121 +76,89 @@ export default function BookingConfirmation() {
       </div>
 
       {/* Booking Details */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
-          <div className="flex justify-between items-center">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50 py-8">
+        {/* 1. Add a large airplane illustration at the top. */}
+        <div className="flex justify-center mb-6">
+          <svg width="200" height="100" viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="48" height="24" rx="12" fill="#fff" fillOpacity="0.1" />
+            <path d="M8 12h32M24 4v16" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+        {/* 2. Style the confirmation card as a white, rounded rectangle with black text and minimalist layout. */}
+        <div className="bg-white rounded-2xl shadow-xl text-black max-w-md w-full mx-auto p-6">
+          {/* Route and Date/Time */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-center">
+              <div className="text-lg font-semibold tracking-widest">{booking.flight.origin.code}</div>
+              <div className="text-xs text-gray-500">{booking.flight.origin.city}</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-xs text-gray-500 mb-1">{formatDateTime(booking.flight.departureTime).split(',')[0]}</div>
+              <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="black" className="mx-2">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19.5l19-7-19-7v5l15 2-15 2v5z" />
+              </svg>
+              <div className="text-xs text-gray-500 mt-1">{formatDateTime(booking.flight.arrivalTime).split(',')[0]}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-semibold tracking-widest">{booking.flight.destination.code}</div>
+              <div className="text-xs text-gray-500">{booking.flight.destination.city}</div>
+            </div>
+          </div>
+          {/* Flight Details */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Booking Reference</h2>
-              <p className="text-2xl font-bold">{booking.bookingReference}</p>
+              <div className="text-xs text-gray-500">Flight</div>
+              <div className="font-bold">{booking.flight.flightNumber}</div>
             </div>
             <div className="text-right">
-              <p className="text-blue-200">Total Paid</p>
-              <p className="text-2xl font-bold">{formatPrice(booking.totalAmount)}</p>
+              <div className="text-xs text-gray-500">Gate</div>
+              <div className="font-bold">6</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Boarding</div>
+              <div className="font-bold">{formatDateTime(booking.flight.departureTime).split(',')[1]?.trim() || ''}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-gray-500">Seat</div>
+              <div className="font-bold">{booking.seats[0]?.seatNumber || '23A'}</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Class</div>
+              <div className="font-bold capitalize">{booking.seats[0]?.class || booking.travelClass}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-gray-500">Passenger</div>
+              <div className="font-bold">{booking.passengers[0]?.firstName} {booking.passengers[0]?.lastName}</div>
             </div>
           </div>
-        </div>
-
-        <div className="p-6">
-          {/* Flight Information */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-              <MapPin className="h-5 w-5" />
-              <span>Flight Details</span>
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-600">Flight Number</p>
-                  <p className="font-semibold">{booking.flight.flightNumber}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Airline</p>
-                  <p className="font-semibold">{booking.flight.airline}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Aircraft</p>
-                  <p className="font-semibold">{booking.flight.aircraft}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-600">Departure</p>
-                  <p className="font-semibold">
-                    {booking.flight.origin.city} ({booking.flight.origin.code})
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formatDateTime(booking.flight.departureTime)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Arrival</p>
-                  <p className="font-semibold">
-                    {booking.flight.destination.city} ({booking.flight.destination.code})
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {formatDateTime(booking.flight.arrivalTime)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Passenger Information */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-              <Users className="h-5 w-5" />
-              <span>Passengers</span>
-            </h3>
-            
-            <div className="space-y-4">
-              {booking.passengers.map((passenger, index) => (
-                <div key={passenger.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-semibold">
-                      {passenger.title} {passenger.firstName} {passenger.lastName}
-                    </p>
-                    <p className="text-sm text-gray-600">{passenger.email}</p>
-                  </div>
-                  {booking.seats[index] && (
-                    <div className="text-right">
-                      <p className="font-semibold">Seat {booking.seats[index].seatNumber}</p>
-                      <p className="text-sm text-gray-600 capitalize">{booking.seats[index].class}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Important Information */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h4 className="font-semibold text-blue-900 mb-2">Important Information</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Please arrive at the airport at least 2 hours before domestic flights and 3 hours before international flights</li>
-              <li>• Check-in opens 24 hours before departure</li>
-              <li>• Bring a valid ID and passport (for international flights)</li>
-              <li>• Review baggage allowances on our website</li>
-            </ul>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button 
-              onClick={handleDownloadPDF}
-              className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center space-x-2 transform hover:scale-105 duration-200"
-            >
-              <Download className="h-5 w-5" />
-              <span>Download Ticket (PDF)</span>
-            </button>
-            <button 
-              onClick={handleEmailTicket}
-              className="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center space-x-2 transform hover:scale-105 duration-200"
-            >
-              <Mail className="h-5 w-5" />
-              <span>Email Ticket</span>
-            </button>
+          {/* Barcode */}
+          <div className="flex justify-center items-center bg-gray-200 py-3">
+            {/* Placeholder barcode SVG */}
+            <svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="180" height="40" rx="8" fill="#fff" fillOpacity="0.1" />
+              <rect x="10" y="10" width="4" height="20" fill="#fff" />
+              <rect x="18" y="10" width="2" height="20" fill="#fff" />
+              <rect x="24" y="10" width="6" height="20" fill="#fff" />
+              <rect x="34" y="10" width="2" height="20" fill="#fff" />
+              <rect x="40" y="10" width="4" height="20" fill="#fff" />
+              <rect x="48" y="10" width="2" height="20" fill="#fff" />
+              <rect x="54" y="10" width="6" height="20" fill="#fff" />
+              <rect x="64" y="10" width="2" height="20" fill="#fff" />
+              <rect x="70" y="10" width="4" height="20" fill="#fff" />
+              <rect x="78" y="10" width="2" height="20" fill="#fff" />
+              <rect x="84" y="10" width="6" height="20" fill="#fff" />
+              <rect x="94" y="10" width="2" height="20" fill="#fff" />
+              <rect x="100" y="10" width="4" height="20" fill="#fff" />
+              <rect x="108" y="10" width="2" height="20" fill="#fff" />
+              <rect x="114" y="10" width="6" height="20" fill="#fff" />
+              <rect x="124" y="10" width="2" height="20" fill="#fff" />
+              <rect x="130" y="10" width="4" height="20" fill="#fff" />
+              <rect x="138" y="10" width="2" height="20" fill="#fff" />
+              <rect x="144" y="10" width="6" height="20" fill="#fff" />
+              <rect x="154" y="10" width="2" height="20" fill="#fff" />
+              <rect x="160" y="10" width="4" height="20" fill="#fff" />
+              <rect x="168" y="10" width="2" height="20" fill="#fff" />
+            </svg>
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Filter, SortAsc, SortDesc, ArrowLeft, Plane } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import FlightCard from './FlightCard';
 import { Flight } from '../types';
+import axios from 'axios';
 
 export default function SearchResults() {
   const { state, dispatch } = useApp();
@@ -13,6 +14,23 @@ export default function SearchResults() {
   const [maxStops, setMaxStops] = useState(2);
   const [airlines, setAirlines] = useState<string[]>([]);
   const [classFilter, setClassFilter] = useState<string>('all'); // New class filter
+  const [flights, setFlights] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setLoading(true);
+    setError('');
+    axios.get('/api/flights')
+      .then(res => {
+        setFlights(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to fetch flights.');
+        setLoading(false);
+      });
+  }, []);
 
   const handleBack = () => {
     dispatch({ type: 'SET_CURRENT_VIEW', payload: 'search' });
@@ -72,11 +90,11 @@ export default function SearchResults() {
     });
   };
 
-  const filteredAndSortedFlights = sortFlights(filterFlights(state.searchResults));
-  const uniqueAirlines = [...new Set(state.searchResults.map(f => f.airline))];
+  const filteredAndSortedFlights = sortFlights(filterFlights(flights));
+  const uniqueAirlines = [...new Set(flights.map(f => f.airline))];
 
   console.log('SearchResults - Filtered flights:', {
-    originalCount: state.searchResults.length,
+    originalCount: flights.length,
     filteredCount: filteredAndSortedFlights.length,
     priceRange,
     maxStops,
@@ -104,142 +122,45 @@ export default function SearchResults() {
     return airportNames[code] || code;
   };
 
-  // Show no results message if no flights found
-  if (state.searchResults.length === 0) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={handleBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back to Search</span>
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Search Results</h1>
-              <p className="text-gray-600">
-                {state.searchFilters.origin && state.searchFilters.destination 
-                  ? `${getAirportName(state.searchFilters.origin)} → ${getAirportName(state.searchFilters.destination)}`
-                  : 'Flight Search Results'
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="bg-gray-100 p-4 rounded-full">
-              <Plane className="h-12 w-12 text-gray-400" />
-            </div>
-          </div>
-          
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">No Flights Found</h2>
-          
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            We couldn't find any flights for the route{' '}
-            <strong>
-              {getAirportName(state.searchFilters.origin)} → {getAirportName(state.searchFilters.destination)}
-            </strong>
-            {' '}on your selected date.
-          </p>
-
-          <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-900 mb-2">Suggestions:</h3>
-              <ul className="text-sm text-blue-800 space-y-1 text-left">
-                <li>• Try different dates - flights may be available on other days</li>
-                <li>• Check if you've selected the correct airports</li>
-                <li>• Consider nearby airports or connecting flights</li>
-                <li>• Try popular routes like Delhi → Mumbai or Mumbai → Goa</li>
-              </ul>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={handleBack}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-              >
-                Modify Search
-              </button>
-              
-              <button
-                onClick={() => {
-                  dispatch({ 
-                    type: 'SET_SEARCH_FILTERS', 
-                    payload: { 
-                      ...state.searchFilters, 
-                      origin: 'DEL', 
-                      destination: 'BOM' 
-                    } 
-                  });
-                  dispatch({ type: 'SET_CURRENT_VIEW', payload: 'search' });
-                }}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
-              >
-                Try Delhi → Mumbai
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="text-center py-12 text-lg">Loading flights...</div>;
+  if (error) return <div className="text-center py-12 text-red-600">{error}</div>;
+  if (!flights.length) return <div className="text-center py-12 text-lg">No flights found.</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={handleBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span>Back to Search</span>
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {state.searchFilters.origin && state.searchFilters.destination 
-                ? `${getAirportName(state.searchFilters.origin)} → ${getAirportName(state.searchFilters.destination)}`
-                : 'Flight Search Results'
-              }
-            </h1>
-            <p className="text-gray-600">
-              {filteredAndSortedFlights.length} flights found for {state.searchFilters.passengers} passenger{state.searchFilters.passengers > 1 ? 's' : ''} • All classes available
-            </p>
-          </div>
+      {/* 1. Add a large airplane illustration at the top, as in the image. */}
+      <div className="relative bg-gradient-to-b from-blue-900 to-blue-700 h-44 rounded-b-3xl flex flex-col items-center justify-center mb-8 overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          {/* You can use a world map SVG or a background image here */}
+          {/* Example: <img src="/assets/world-map.svg" alt="World Map" className="w-full h-full object-cover" /> */}
         </div>
-
-        <div className="flex items-center space-x-4">
-          {/* Sort Options */}
-          <div className="flex items-center space-x-2">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="price">Sort by Price</option>
-              <option value="duration">Sort by Duration</option>
-              <option value="departure">Sort by Departure</option>
-            </select>
-            <button
-              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
-            </button>
+        <div className="z-10 flex flex-col items-center">
+          <div className="flex items-center space-x-4 mb-2">
+            <span className="text-white text-2xl font-bold tracking-wide">{getAirportName(state.searchFilters.origin)}</span>
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="white" className="mx-2 animate-bounce">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19.5l19-7-19-7v5l15 2-15 2v5z" />
+            </svg>
+            <span className="text-white text-2xl font-bold tracking-wide">{getAirportName(state.searchFilters.destination)}</span>
           </div>
+          <span className="text-blue-200 text-sm font-medium">Select Flight</span>
+        </div>
+      </div>
 
-          {/* Filter Toggle */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Filter className="h-4 w-4" />
-            <span>Filters</span>
+      <div className="flex justify-center mb-8">
+        <div className="flex items-center bg-white rounded-full shadow px-4 py-2 space-x-4">
+          <button onClick={() => setShowFilters(!showFilters)} className="flex items-center space-x-2 text-blue-700 font-semibold focus:outline-none">
+            <Filter className="h-5 w-5" />
+            <span>Filter</span>
+          </button>
+          <span className="text-gray-300">|</span>
+          <span className="text-gray-700 font-medium">Sort by:</span>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-transparent focus:outline-none font-semibold text-blue-700">
+            <option value="price">Price</option>
+            <option value="duration">Duration</option>
+            <option value="departure">Departure</option>
+          </select>
+          <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="text-blue-700 focus:outline-none">
+            {sortOrder === 'asc' ? <SortAsc className="h-5 w-5" /> : <SortDesc className="h-5 w-5" />}
           </button>
         </div>
       </div>
@@ -351,7 +272,7 @@ export default function SearchResults() {
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {filteredAndSortedFlights.map(flight => (
                 <FlightCard key={flight.id} flight={flight} />
               ))}
